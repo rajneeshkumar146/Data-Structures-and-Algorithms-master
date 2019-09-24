@@ -1,64 +1,77 @@
-package Graph;
+package Graphs;
 
-public class Floydwarshall {
+import java.util.ArrayList;
+import java.util.HashMap;
+
+public class FloydWarshall {
 
 	public static void main(String[] args) {
+		HashMap<String, HashMap<String, Integer>> graph = new HashMap<String, HashMap<String, Integer>>();
 
-		Integer[][] graph = new Integer[6][6];
+		// Vertices
+		graph.put("A", new HashMap<String, Integer>());
+		graph.put("B", new HashMap<String, Integer>());
+		graph.put("C", new HashMap<String, Integer>());
+		graph.put("D", new HashMap<String, Integer>());
 
-		graph[0][1] = 2;
-		graph[0][2] = 7;
-		graph[1][2] = 4;
-		graph[1][4] = 7;
-		graph[2][3] = 1;
-		graph[2][4] = 5;
-		graph[3][5] = 6;
-		graph[4][5] = 2;
+		// edge
+		graph.get("A").put("B", 5);
+		graph.get("A").put("D", 10);
+		graph.get("B").put("C", 3);
+		graph.get("C").put("D", 1);
 
-		Integer[][] res = FloydWarshall(graph);
+		// result------------------------------------------------------------------------------------------------
 
-		for (int i = 0; i < res.length; i++) {
-			for (int j = 0; j < res.length; j++) {
-				if (res[i][j] == null) {
-					System.out.print(" " + "-" + " ");
-				} else {
-					System.out.print(" " + res[i][j] + " ");
+		HashMap<String, HashMap<String, FWPair>> result = new HashMap<String, HashMap<String, FWPair>>(); // source_to_destination+ke_against_pair.
+		ArrayList<String> vnames = new ArrayList<String>(graph.keySet());
+		for (String svname : vnames) {
+			result.put(svname, new HashMap<String, FWPair>());
+			for (String dvname : vnames) {
+				FWPair pair = new FWPair();
+				if (svname.equals(dvname)) {
+					pair.psf = svname;
+					pair.csf = 0;
+				} else if (graph.get(svname).containsKey(dvname)) {
+					pair.psf = svname + dvname;
+					pair.csf = graph.get(svname).get(dvname);
 				}
-
+				pair.psf = null;
+				pair.csf = Integer.MAX_VALUE;
+				result.get(svname).put(dvname, pair);
 			}
-			System.out.println();
 		}
+
+		for (String ivname : vnames) {
+			for (String svname : vnames) {
+				for (String dvname : vnames) {
+					if (svname.equals(dvname)) {
+						continue;
+					}
+					FWPair s2d = result.get(svname).get(dvname);
+					FWPair s2i = result.get(svname).get(ivname);
+					FWPair i2d = result.get(ivname).get(dvname);
+					if (s2i.psf == null && i2d.psf == null) {
+						continue;
+					} else if (s2i.csf + i2d.csf < s2d.csf) {
+						s2d.csf = s2i.csf + i2d.csf;
+						s2d.psf = s2i.psf + " => " + i2d.psf;
+					}
+
+				}
+			}
+		}
+		
+		System.out.println();
 
 	}
 
-	public static Integer[][] FloydWarshall(Integer[][] graph) {
+	private static class FWPair {
+		private String psf;
+		private int csf;
 
-		Integer[][] res = new Integer[graph.length][graph.length];
-
-		for (int i = 0; i < graph.length; i++) {
-			for (int j = 0; j < graph.length; j++) {
-				res[i][j] = graph[i][j];
-			}
+		public String toString() {
+			return "[" + this.psf + ":" + this.csf + "]";
 		}
-
-		for (int i = 0; i < res.length; i++) {
-			for (int s = 0; s < res.length; s++) {
-				for (int d = 0; d < res.length; d++) {
-					if (s == i || i == d) {
-						continue;
-					} else if (res[s][i] == null || res[i][d] == null) {
-						continue;
-					} else if (res[s][d] == null) {
-						res[s][d] = res[s][i] + res[i][d];
-					} else {
-						res[s][d] = Math.min(res[s][d], res[s][i] + res[i][d]);
-					}
-				}
-
-			}
-		}
-
-		return res;
 	}
 
 }

@@ -1,28 +1,23 @@
 package Heap;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
-public class Heap {
+public class GenericHeap<T> {
+	private ArrayList<T> data = new ArrayList<T>();
 
-	private ArrayList<Integer> data = new ArrayList<Integer>();
-
-	private boolean ismin;
+	private Comparator<T> ctor;
 
 	// Constructor-----------------------------------------------------------------------------------------------
 
-	public Heap() {
-		this.ismin = true;
+	public GenericHeap(Comparator<T> ctor) {
+		this.ctor = ctor;
 	}
 
-	public Heap(boolean ismin) {
-		this.ismin = ismin;
-	}
+	public GenericHeap(T[] arr, Comparator<T> ctor) {
+		this.ctor = ctor;
 
-	public Heap(int[] arr, boolean ismin) {
-		this.ismin = ismin;
-
-		for (int el : arr) {
-
+		for (T el : arr) {
 			this.data.add(el);
 		}
 
@@ -81,7 +76,7 @@ public class Heap {
 	}
 	// add---------------------------------------------------------------------------------------------------
 
-	public void add(int data) {
+	public void add(T data) {
 		this.data.add(data);
 
 		int ci = this.data.size() - 1;
@@ -90,37 +85,37 @@ public class Heap {
 
 	// Remove,poll_and_peek-----------------------------------------------------------------------------------
 
-	public int remove() throws Exception {
+	public T remove() throws Exception {
 		if (this.size() == 0) {
 			throw new Exception("NoSuchElementException");
 		}
 		swap(0, this.size() - 1);
-		int rv = this.data.remove(this.size() - 1);
+		T rv = this.data.remove(this.size() - 1);
 		downheapify(0, this.size());
 		return rv;
 	}
 
-	public int poll() throws Exception {
+	public T poll() throws Exception {
 		if (this.size() == 0) {
 			throw new Exception("NullPointerException");
 		}
 		swap(0, this.size() - 1);
-		int rv = this.data.remove(this.size() - 1);
+		T rv = this.data.remove(this.size() - 1);
 		downheapify(0, this.size());
 		return rv;
 	}
 
-	public int peek() throws Exception {
+	public T peek() throws Exception {
 		if (this.size() == 0) {
 			throw new Exception("NoSuchElementException");
 		}
 		return this.data.get(0);
 	}
 
-	public void update(int data) {
+	public void update(T data) {
 		int idx = -1;
 		for (int i = 0; i < this.data.size(); i++) {
-			if (data == this.data.get(i)) {
+			if (data.equals(this.data.get(i))) {
 				idx = i;
 				break;
 			}
@@ -171,8 +166,8 @@ public class Heap {
 	// swap_and_higher_priority--------------------------------------------------------------------------------
 
 	private void swap(int i, int j) {
-		int idata = this.data.get(i);
-		int jdata = this.data.get(j);
+		T idata = this.data.get(i);
+		T jdata = this.data.get(j);
 
 		this.data.set(j, idata);
 		this.data.set(i, jdata);
@@ -180,21 +175,18 @@ public class Heap {
 	}
 
 	private boolean higherPriority(int i, int j) {
-		int idata = this.data.get(i);
-		int jdata = this.data.get(j);
+		T idata = this.data.get(i);
+		T jdata = this.data.get(j);
 
-		if (ismin) {
-			return idata < jdata ? true : false;
-		} else {
-			return idata > jdata ? true : false;
-		}
+		return ctor.compare(idata, jdata) > 0;
+
 	}
 
 	// Contains------------------------------------------------------------------------------------------------------
 
-	public boolean contains(int data) {
-		for (int i : this.data) {
-			if (this.data.get(i) == data) {
+	public boolean contains(T data) {
+		for (T i : this.data) {
+			if (data.equals(i)) {
 				return true;
 			}
 		}
@@ -211,5 +203,4 @@ public class Heap {
 		}
 
 	}
-
 }

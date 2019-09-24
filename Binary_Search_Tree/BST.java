@@ -1,631 +1,596 @@
-package Binary_Search_Tree;
+package Tree.BST;
 
-import java.util.*;
+import java.util.LinkedList;
 
 public class BST {
 
 	private class Node {
-		int data;
-		Node right;
-		Node left;
+		private int data;
+		private Node left;
+		private Node right;
 	}
 
 	private Node root;
-	@SuppressWarnings("unused")
-	private int size = 0;
+	private int size;
 
-	public BST(int[] arr) {
-		root = construct(arr, 0, arr.length - 1);
+	// Basic------------------------------------------------------------------------------------------------------------------------------------------
+
+	public BST(int[] pre, int[] in) {
+
+		this.root = construct(pre, in, 0, pre.length - 1, 0, in.length - 1);
 	}
 
-	private Node construct(int[] arr, int lo, int hi) {
+	private Node construct(int[] pre, int[] in, int psi, int pei, int isi, int iei) { // psi=pre_statrting_indfex
 
-		if (lo > hi) {
-
+		if (psi > pei || isi > iei) {
 			return null;
 		}
 
-		int mid = (lo + hi) / 2;
-
 		Node node = new Node();
+		this.size++;
+		node.data = pre[psi];
 
-		node.data = arr[mid];
+		int idx = -1;
+		for (int i = 0; i < in.length; i++) {
+			if (pre[psi] == in[i]) {
+				idx = i;
+				break;
+			}
 
-		size++;
+		}
 
-		node.left = construct(arr, lo, mid - 1);
+		int noelonls = idx - isi; // onelonls=Number_of_element_on_left_side.
 
-		node.right = construct(arr, mid + 1, hi);
+		node.left = construct(pre, in, psi + 1, psi + noelonls, isi, idx - 1);
+		node.right = construct(pre, in, psi + noelonls + 1, pei, idx + 1, iei);
 
 		return node;
 
 	}
 
+	public BST(int[] sa) {
+		root = construct(sa, 0, sa.length - 1);
+	}
+
+	private Node construct(int[] sa, int lo, int hi) {
+		if (lo > hi) {
+			return null;
+		}
+		int mid = (lo + hi) / 2;
+		Node node = new Node();
+		this.size++;
+		node.data = sa[mid];
+
+		node.left = construct(sa, lo, mid - 1);
+		node.right = construct(sa, mid + 1, hi);
+
+		return node;
+
+	}
+	
 	public void display() {
-
 		display(root);
-
 	}
 
 	private void display(Node node) {
-
 		if (node == null) {
 			return;
 		}
-		String str = new String();
 
-		str += node.left != null ? node.left.data : ".";
+		String str = "";
+		if (node.left != null) {
+			str += node.left.data;
+		} else {
+			str += ".";
+		}
 
-		str += " <- " + node.data + " -> ";
+		str += "=>";
+		str += node.data;
+		str += "<=";
 
-		str += node.right != null ? node.right.data : ".";
+		if (node.right != null) {
+			str += node.right.data;
+		} else {
+			str += ".";
+		}
 
 		System.out.println(str);
-
 		display(node.left);
 		display(node.right);
 
 	}
 
-	public int min() {
-
-		return min(root);
+	public int size() {
+		return this.size;
 	}
 
-	private int min(Node node) {
+	public boolean isempty() {
+		return this.size == 0;
+	}
 
-		if (node.left == null) {
-			return node.data;
+	// Size2_Max_Min_Height_Find-----------------------------------------------------------------------------------------------------------------------
+
+	public int size2() {
+		return size2(root);
+	}
+
+	private int size2(Node node) {
+		if (node == null) {
+			return 0;
 		}
 
-		return min(node.left);
+		int ls = size2(node.left); // ls=left_size.
+		int rs = size2(node.right); // rs=right_size.
+
+		return (ls + rs + 1);
 
 	}
 
 	public int max() {
-		return max(root);
+		if (root != null) {
+			return max(root);
+		} else {
+			System.out.print("Root is null so -infinity of Int is max: ");
+			return Integer.MIN_VALUE;
+		}
+
 	}
 
 	private int max(Node node) {
-
-		if (node.right == null) {
+		if (node.right != null) {
+			return max(node.right);
+		} else {
 			return node.data;
 		}
 
-		return max(node.right);
-
 	}
 
-	public boolean find(int val) {
-		return find(root, val);
+	public int min() {
+		if (root != null) {
+			return min(root);
+		} else {
+			System.out.print("Root is null so +infinity of Int is min: ");
+			return Integer.MAX_VALUE;
+		}
 	}
 
-	private boolean find(Node node, int val) {
+	public int min(Node node) {
 
+		if (node.left != null) {
+			return min(node.left);
+		} else {
+			return node.data;
+		}
+	}
+
+	public int height() {
+		return height(root);
+	}
+
+	public int height(Node node) {
+		if (node == null) {
+			return -1;
+		}
+
+		int lh = height(node.left); // lh=left_height.
+		int rh = height(node.right); // rh=right_height.
+
+		return Math.max(lh, rh) + 1;
+	}
+
+	public boolean find(int data) {
+		return find(root, data);
+	}
+
+	public boolean find(Node node, int data) {
 		if (node == null) {
 			return false;
 		}
 
-		if (node.data == val) {
+		if (data > node.data) {
+			return find(node.right, data);
+		} else if (data < node.data) {
+			return find(node.left, data);
+		} else {
 			return true;
 		}
-		if (node.data > val) {
-			boolean find = find(node.left, val);
-			if (find) {
-				return true;
-			}
-		}
-
-		else {
-			boolean find = find(node.right, val);
-			if (find) {
-				return true;
-			}
-
-		}
-		return false;
 
 	}
 
-	public void add(int val) {
+	// Pre_Post_In_LevelOder_display_recursive---------------------------------------------------------------------------------------------------------
 
-		root = add(root, val);
+	public void preOderDisplay() {
+		preOderDisplay(root);
 	}
 
-	private Node add(Node node, int val) {
-
+	private void preOderDisplay(Node node) {
 		if (node == null) {
-			Node base = new Node();
-			base.data = val;
-
-			return base;
+			return;
 		}
 
-		if (val < node.data) {
-			node.left = add(node.left, val);
-		} else {
-			node.right = add(node.right, val);
-		}
-		return node;
-	}
-
-	public void removeleave(int val) {
-
-		root = remove(root, val);
+		System.out.print(node.data + ",");
+		preOderDisplay(node.left);
+		preOderDisplay(node.right);
 
 	}
 
-	private Node remove(Node node, int val) {
+	public void postOderDisplay() {
+		postOderDisplay(root);
+	}
 
+	private void postOderDisplay(Node node) {
 		if (node == null) {
-			return null;
+			return;
 		}
 
-		if (node.data == val) {
+		postOderDisplay(node.left);
+		postOderDisplay(node.right);
+		System.out.print(node.data + ",");
+	}
 
-			if (node.left == null && node.right == null) {
+	public void inOderDisplay() {
+		inOderDisplay(root);
+	}
 
-				return null;
+	private void inOderDisplay(Node node) {
+		if (node == null) {
+			return;
+		}
 
-			} else if (node.left == null) {
+		inOderDisplay(node.left);
+		System.out.print(node.data + ",");
+		inOderDisplay(node.right);
 
-				return node.right;
+	}
 
-			} else if (node.right == null) {
+	public void levelOrderDisplay() {
+		LinkedList<Node> queue = new LinkedList<>();
+		queue.addFirst(root);
 
-				return node.left;
+		while (!queue.isEmpty()) {
+			Node printable = queue.removeFirst();
+			System.out.print(printable.data + ",");
 
+			if (printable.left != null) {
+				queue.addLast(printable.left);
+			}
+
+			if (printable.right != null) {
+				queue.addLast(printable.right);
+			}
+
+		}
+
+	}
+
+	// Pre_Post_InOder_display_Iterative---------------------------------------------------------------------------------------------------------------
+
+	private class TraversalPair {
+		private Node node;
+		private boolean selfdone;
+		private boolean leftdone;
+		private boolean rightdone;
+	}
+
+	public void preOderDisplayIre() {
+
+		LinkedList<TraversalPair> stack = new LinkedList<>();
+		TraversalPair pair = new TraversalPair();
+
+		pair.node = root;
+		stack.addFirst(pair);
+
+		while (stack.size() != 0) {
+			pair = stack.getFirst();
+
+			if (pair.selfdone == false) {
+				System.out.print(pair.node.data + ",");
+
+				pair.selfdone = true;
+			} else if (pair.leftdone == false) {
+				if (pair.node.left != null) {
+					TraversalPair lp = new TraversalPair();
+					lp.node = pair.node.left;
+					stack.addFirst(lp);
+				}
+
+				pair.leftdone = true;
+			} else if (pair.rightdone == false) {
+				if (pair.node.right != null) {
+					TraversalPair rp = new TraversalPair();
+					rp.node = pair.node.right;
+					stack.addFirst(rp);
+				}
+
+				pair.rightdone = true;
 			} else {
-				int lmax = max(node.left);
-				node.data = lmax;
-				node.left = remove(node.left, lmax);
-				return node;
+				stack.removeFirst();
 			}
-
 		}
-
-		if (val > node.data) {
-			node.right = remove(node.right, val);
-		} else {
-			node.left = remove(node.left, val);
-		}
-
-		return node;
 
 	}
 
-	public void removenode(int data) {
-		removenode(root, data);
-	}
+	public void postOderDisplayIre() {
 
-	private Node removenode(Node node, int data) {
+		LinkedList<TraversalPair> stack = new LinkedList<>();
+		TraversalPair pair = new TraversalPair();
+		pair.node = root;
+		stack.addFirst(pair);
 
-		if (node == null) {
-			return null;
+		while (!stack.isEmpty()) {
+			pair = stack.getFirst();
+
+			if (pair.leftdone == false) {
+				if (pair.node.left != null) {
+					TraversalPair lp = new TraversalPair();
+					lp.node = pair.node.left;
+					stack.addFirst(lp);
+				}
+
+				pair.leftdone = true;
+			} else if (pair.rightdone == false) {
+				if (pair.node.right != null) {
+					TraversalPair lp = new TraversalPair();
+					lp.node = pair.node.right;
+					stack.addFirst(lp);
+				}
+
+				pair.rightdone = true;
+			} else if (pair.selfdone == false) {
+				System.out.print(pair.node.data + ",");
+
+				pair.selfdone = true;
+			} else {
+				stack.removeFirst();
+			}
+
 		}
 
-		if (data < node.data) {
+	}
 
-			removenode(node.left, data);
+	public void inOderDisplayIre() {
+		LinkedList<TraversalPair> stack = new LinkedList<>();
+		TraversalPair pair = new TraversalPair();
+		pair.node = root;
+		stack.addFirst(pair);
+		while (!stack.isEmpty()) {
+			pair = stack.getFirst();
 
-		} else if (data > node.data) {
+			if (pair.leftdone == false) {
+				if (pair.node.left != null) {
+					TraversalPair lp = new TraversalPair();
+					lp.node = pair.node.left;
+					stack.addFirst(lp);
+				}
 
-			removenode(node.right, data);
+				pair.leftdone = true;
+			} else if (pair.selfdone == false) {
+				System.out.print(pair.node.data + ",");
 
+				pair.selfdone = true;
+			} else if (pair.rightdone == false) {
+				if (pair.node.right != null) {
+					TraversalPair lp = new TraversalPair();
+					lp.node = pair.node.right;
+					stack.addFirst(lp);
+				}
+
+				pair.rightdone = true;
+			} else {
+				stack.removeFirst();
+			}
+
+		}
+
+	}
+
+	// Add_remove_replace_printBetweenRangeAndThereVariations_and_Siblings_type_functions--------------------------------------------------------------
+
+	public void add(int data) {
+		add(root, data);
+	}
+
+	private void add(Node node, int data) {
+
+		if (data > node.data) {
+			if (node.right == null) {
+				Node nn = new Node();
+				nn.data = data;
+				node.right = nn;
+				this.size++;
+			} else {
+				add(node.right, data);
+			}
+		} else if (data < node.data) {
+			if (node.left == null) {
+				Node nn = new Node();
+				nn.data = data;
+				node.left = nn;
+				this.size++;
+			} else {
+				add(node.left, data);
+			}
+		}
+
+	}
+
+	public void remove(int data) {
+		if (root == null) {
+			return;
 		} else {
-			if (node.left != null && node.right == null) {
-				return node.left;
-			}
+			remove(data, root, null, false);
+		}
+	}
 
-			if (node.left == null && node.right != null) {
-				return node.right;
-			}
-
-			if (node.right == null & node.right == null) {
-				return null;
-			}
-
+	private void remove(int data, Node node, Node parent, boolean ilc) {
+		if (data > node.data) {
+			remove(data, node.right, node, false);
+		} else if (data < node.data) {
+			remove(data, node.left, node, true);
+		} else {
 			if (node.left != null && node.right != null) {
-
-				node.data = max(node.left);
-
-				node.left = removenode(node.left, node.data);
-
-				return node;
-			}
-		}
-		return node;
-	}
-
-	public void printInRange(int lo, int hi) {
-
-		printInRange(root, lo, hi);
-
-	}
-
-	private void printInRange(Node node, int lo, int hi) {
-
-		if (node == null) {
-			return;
-		}
-
-		if (lo <= node.data || node.data <= hi) {
-			System.out.println(node.data);
-		}
-
-		if (lo <= node.data) {
-			printInRange(node.left, lo, hi);
-		}
-
-		if (hi >= node.data) {
-			printInRange(node.right, lo, hi);
-
-		}
-
-	}
-
-	public void replacewithsumoflarger() {
-		replacewithsumoflarger(root);
-	}
-
-	static int sum = 0;
-
-	private void replacewithsumoflarger(Node node) {
-
-		if (node == null) {
-			return;
-		}
-
-		replacewithsumoflarger(node.right);
-
-		sum += node.data;
-
-		int temp = node.data;
-		node.data = sum;
-		node.data = node.data - temp;
-
-		replacewithsumoflarger(node.left);
-
-	}
-
-	public void levelorder() {
-		levelorder(root);
-	}
-
-	private void levelorder(Node node) {
-		LinkedList<Node> queue = new LinkedList<>();
-
-		queue.add(node);
-
-		while (queue.size() > 0) {
-
-			Node temp = queue.removeFirst();
-
-			System.out.print(temp.data + "  ");
-
-			if (temp.left != null) {
-				queue.addLast(temp.left);
-			}
-
-			if (temp.right != null) {
-				queue.addLast(temp.right);
-			}
-
-		}
-
-	}
-
-	public void levelorder_lineWise_NULL() {
-
-		levelorder_lineWise_NULL(root);
-
-	}
-
-	private void levelorder_lineWise_NULL(Node node) {
-
-		LinkedList<Node> queue = new LinkedList<>();
-
-		queue.add(node);
-		queue.add(null);
-
-		while (queue.size() > 0) {
-			Node temp = queue.removeFirst();
-
-			if (temp != null) {
-
-				System.out.print(temp.data + "  ");
-				if (temp.left != null) {
-					queue.addLast(temp.left);
-				}
-
-				if (temp.right != null) {
-					queue.addLast(temp.right);
-				}
+				node.data = this.max(node.left);
+				remove(node.data, node.left, node, true);
 
 			} else {
-				if (queue.size() == 0) {
-					return;
+				this.size--;
+				if (ilc) {
+					parent.left = (node.left != null) ? node.left : node.right;
+				} else {
+					parent.right = (node.left != null) ? node.left : node.right;
 				}
-				System.out.println();
-				queue.addLast(null);
-			}
-
-		}
-
-	}
-
-	public void levelorder_linewise_TWO_QUEUE() {
-
-		levelorder_linewise_TWO_QUEUE(root);
-
-	}
-
-	public void levelorder_linewise_TWO_QUEUE(Node node) {
-		LinkedList<Node> que1 = new LinkedList<Node>();
-		LinkedList<Node> que2 = new LinkedList<Node>();
-
-		que1.addLast(root);
-
-		while (!que1.isEmpty()) {
-
-			Node node1 = que1.removeFirst();
-
-			System.out.print(node1.data + " ");
-
-			if (node1.left != null) {
-				que2.addLast(node1.left);
-			}
-			if (node1.right != null) {
-				que2.addLast(node1.right);
-			}
-
-			if (que1.isEmpty()) {
-				LinkedList<Node> temp = que1;
-				que1 = que2;
-				que2 = temp;
-				System.out.println();
 			}
 		}
 	}
 
-	public void printleftView() {
-		leftView(root, 0);
+	public void removeAllLeaves() {
+		removeAllLeaves(root, null, false);
 	}
 
-	static int max_level = -1;
-
-	private void leftView(Node node, int level) {
-		if (node == null) {
-			return;
-		}
-		if (level > max_level) {
-			System.out.print(node.data + " ");
-			max_level = level;
-		}
-
-		leftView(node.left, level + 1);
-		leftView(node.right, level + 1);
-
-	}
-
-	public void printRightView() {
-		rightview(root, 0);
-	}
-
-	static int max_level_R = -1;
-
-	private void rightview(Node node, int level) {
-
+	private void removeAllLeaves(Node node, Node parent, boolean ilc) {
 		if (node == null) {
 			return;
 		}
 
-		if (level > max_level_R) {
-			System.out.print(node.data + " ");
-			max_level_R = level;
-		}
-
-		rightview(node.right, level + 1);
-		rightview(node.left, level + 1);
-
-	}
-
-	static HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
-
-	public void printBottomView() {
-
-		printBottomView(root, 0);
-
-		System.out.println(map.values());
-	}
-
-	public void printBottomView(Node node, int hd) {
-
-		if (node == null) {
-			return;
-		}
-
-		map.put(hd, node.data);
-
-		printBottomView(node.left, hd - 1);
-		printBottomView(node.right, hd + 1);
-
-	}
-
-	static HashMap<Integer, Integer> map2 = new HashMap<Integer, Integer>();
-
-	public void printTopView() {
-
-		printTopView(root, 0);
-
-		System.out.println(map2.values());
-	}
-
-	public void printTopView(Node node, int hd) {
-
-		if (node == null) {
-			return;
-		}
-
-		if (!map2.containsKey(hd)) {
-
-			map2.put(hd, node.data);
-
-		}
-
-		printTopView(node.left, hd - 1);
-		printTopView(node.right, hd + 1);
-
-	}
-
-	public boolean TargetPair(int k) {
-
-		return TargetPair(root, k, new HashSet<Integer>());
-
-	}
-
-	private boolean TargetPair(Node node, int k, HashSet<Integer> set) {
-
-		if (node == null) {
-			return false;
-		}
-
-		if (set.contains(k - node.data)) {
-			return true;
-		}
-
-		set.add(node.data);
-
-		return TargetPair(node.left, k, set) || TargetPair(node.right, k, set);
-
-	}
-
-	static Node firstSwapped, lastSwapped, prevNode;
-
-	public void FixBST() {
-		firstSwapped = lastSwapped = prevNode = null;
-		FixBST(root);
-
-		int temp = firstSwapped.data;
-
-		firstSwapped.data = lastSwapped.data;
-
-		lastSwapped.data = temp;
-	}
-
-	private void FixBST(Node node) {
-
-		if (node == null) {
-			return;
-		}
-
-		FixBST(node.left);
-
-		if (prevNode != null) {
-			if (prevNode.data > node.data) {
-				if (firstSwapped == null) {
-					firstSwapped = prevNode;
-				}
-				lastSwapped = node;
+		if (node.left == null && node.right == null) {
+			if (ilc) {
+				parent.left = null;
+			} else {
+				parent.right = null;
 			}
 		}
 
-		prevNode = node;
-
-		FixBST(node.right);
-
-	}
-
-	static Boolean trigger = false;
-
-	public void inroderPredecessor(int data) {
-
-		inroderPredecessor(root, data);
-
-		if (trigger) {
-			System.out.println(" No inorder Successor ");
-		}
+		removeAllLeaves(node.left, parent, true);
+		removeAllLeaves(node.right, parent, false);
 
 	}
 
-	private void inroderPredecessor(Node node, int data) {
+	public void printNodeWithoutSublings() {
+		printNodeWithoutSublings(root);
+	}
 
-		if (node == null) {
-			return;
-		}
+	private void printNodeWithoutSublings(Node node) {
 
-		inroderPredecessor(node.right, data);
-
-		if (trigger) {
+		if (node.left == null && node.right != null) {
 			System.out.println(node.data);
-			trigger = false;
-		}
-
-		if (data == node.data) {
-			trigger = true;
-
-		}
-
-		inroderPredecessor(node.left, data);
-
-	}
-
-	public void inroderSucessor(int data) {
-
-		inroderSucessor(root, data);
-
-		if (trigger) {
-			System.out.println(" No inorder Successor ");
+		} else if (node.right == null && node.left != null) {
+			System.out.println(node.data);
+		} else if (node.left != null && node.right != null) {
+			printNodeWithoutSublings(node.left);
+			printNodeWithoutSublings(node.right);
 		}
 
 	}
 
-	private void inroderSucessor(Node node, int data) {
+	public void printSiblings() {
+		this.printSiblings(null, this.root, false);
+	}
 
+	private void printSiblings(Node parent, Node node, boolean ilc) {
+		if (node.left == null && node.right != null) {
+			System.out.println(parent.right.data);
+		} else if (node.right == null && node.left != null) {
+			System.out.println(parent.left.data);
+		} else if (node.left != null && node.right != null) {
+			printSiblings(node, node.left, true);
+			printSiblings(node, node.right, false);
+		}
+	}
+
+	public void printBetweenRange(int lodata, int hidata) {
+		printBetweenRange(root, lodata, hidata);
+	}
+
+	private void printBetweenRange(Node node, int lodata, int hidata) {
+
+		if (lodata > node.data) {
+			printBetweenRange(node.right, lodata, hidata);
+		} else if (hidata < node.data) {
+			printBetweenRange(node.left, lodata, hidata);
+		} else {
+
+			System.out.println(node.data + " ");
+			printBetweenRange(node.left, lodata, hidata);
+			printBetweenRange(node.right, lodata, hidata);
+		}
+
+	}
+
+	private class HeapMover_sum {
+		int sum;
+	}
+
+	public void replaceWithSumOfLarerNode() {
+		HeapMover_sum bucket = new HeapMover_sum();
+		replaceWithSumOfLarerNode(bucket, root);
+	}
+
+	// Add_all_greater_values_to_every_node
+	private void replaceWithSumOfLarerNode(HeapMover_sum bucket, Node node) {
 		if (node == null) {
 			return;
 		}
 
-		inroderSucessor(node.left, data);
-
-		if (trigger) {
-			System.out.println(node.data);
-			trigger = false;
-		}
-
-		if (data == node.data) {
-			trigger = true;
-
-		}
-
-		inroderSucessor(node.right, data);
+		replaceWithSumOfLarerNode(bucket, node.right);
+		bucket.sum += node.data;
+		node.data = bucket.sum;
+		replaceWithSumOfLarerNode(bucket, node.left);
 
 	}
 
-	public void MergeTree(BST tree) {
+	// Is_BST_and_there_Variations.
 
-		this.root = mergeTrees(this.root, tree.root);
+	private class HM_isbst { // HeapMover_IsBST.
+		private int max;
+		private int min;
+		private boolean isbst;
+		private int sbc; // sbc=subBSTCount.
+		private int colbstinb; // count_of_largestBST_in_branch.
+		private Node largestBSTRoot;
 
 	}
 
-	private Node mergeTrees(Node t1, Node t2) {
-		if (t1 == null && t2 == null) {
-			return null;
-		}
+	public void isBstcount() {
+		isBstVariastionTCount(root);
 
-		if (t1 != null && t2 == null) {
-			return t1;
-		}
-
-		if (t1 == null && t2 != null) {
-			return t2;
-		}
-
-		t1.data += t2.data;
-
-		t1.left = mergeTrees(t1.left, t2.left);
-		t1.right = mergeTrees(t1.right, t2.right);
-
-		return t1;
 	}
+
+	private HM_isbst isBstVariastionTCount(Node node) {
+		if (node == null) {
+			HM_isbst rp = new HM_isbst();
+			rp.max = Integer.MIN_VALUE;
+			rp.min = Integer.MAX_VALUE;
+			rp.isbst = true;
+			rp.colbstinb = 0;
+			rp.largestBSTRoot = null;
+
+			return rp;
+		}
+
+		HM_isbst leftpair = isBstVariastionTCount(node.left);
+		HM_isbst rightpair = isBstVariastionTCount(node.right);
+
+		HM_isbst np = new HM_isbst();
+
+		np.max = Math.max(Math.max(leftpair.max, rightpair.max), node.data);
+		np.min = Math.min(Math.min(leftpair.min, rightpair.min), node.data);
+
+		if (leftpair.isbst && rightpair.isbst && node.data < leftpair.min && node.data > rightpair.max) {
+			np.isbst = true;
+			np.colbstinb = leftpair.colbstinb + rightpair.colbstinb + 1;
+			np.largestBSTRoot = node;
+		} else {
+			np.isbst = false;
+			if (leftpair.colbstinb > rightpair.colbstinb) {
+				np.colbstinb = leftpair.colbstinb;
+				np.largestBSTRoot = leftpair.largestBSTRoot;
+			} else {
+				np.colbstinb = rightpair.colbstinb;
+				np.largestBSTRoot = rightpair.largestBSTRoot;
+			}
+		}
+		return np;
+
+	}
+
 }
